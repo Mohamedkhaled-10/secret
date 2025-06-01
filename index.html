@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>🔒 نظام سري</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="background-animation"></div>
+
+  <div class="lock-screen" id="lockScreen">
+    <h2>أدخل كلمة السر للدخول</h2>
+    <input type="password" id="passwordInput" placeholder="●●●●●●●●">
+    <button onclick="checkPassword()">ولوج النظام</button>
+    <p id="errorMessage"></p>
+  </div>
+
+  <div class="desktop" id="desktop" style="display: none;">
+    <h1>مرحبًا بك في النظام</h1>
+    <p>هذا هو سطح المكتب الخاص بك</p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

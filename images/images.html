@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>📁 مجلد الصور مع حماية بالباسورد</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Courier New', monospace;
+      background-color: #000;
+      color: #00ffcc;
+      overflow: hidden;
+    }
+    .background-animation {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: repeating-linear-gradient(
+        0deg,
+        #0f0 0px,
+        #000 1px,
+        #000 2px
+      );
+      opacity: 0.05;
+      animation: scroll 5s linear infinite;
+      z-index: 1;
+    }
+    @keyframes scroll {
+      0% { background-position: 0 0; }
+      100% { background-position: 0 100%; }
+    }
+
+    .folder {
+      position: relative;
+      z-index: 2;
+      margin: 40px auto;
+      width: 90%;
+      max-width: 1000px;
+      color: #00ffe1;
+      text-align: center;
+    }
+
+    .folder h1 {
+      text-shadow: 0 0 15px #00ffe1;
+      margin-bottom: 20px;
+    }
+
+    .upload-section {
+      margin-bottom: 30px;
+    }
+
+    .upload-section input[type="file"],
+    .upload-section input[type="password"] {
+      background-color: #111;
+      border: 1px solid #00ffe1;
+      color: #00ffe1;
+      font-size: 16px;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 0 10px #00ffe1;
+      outline: none;
+      transition: 0.3s;
+      margin-right: 10px;
+    }
+    .upload-section input[type="file"]:hover,
+    .upload-section input[type="password"]:hover {
+      background-color: #00ffe1;
+      color: #000;
+    }
+
+    .folder-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 25px;
+      padding: 0 20px;
+      overflow-y: auto;
+      max-height: 65vh;
+    }
+
+    .folder-item {
+      border: 2px solid #00ffe1;
+      border-radius: 15px;
+      box-shadow: 0 0 10px #00ffe1;
+      background-color: transparent;
+      cursor: pointer;
+      padding: 15px 10px;
+      user-select: none;
+      transition: 0.3s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .folder-item:hover {
+      box-shadow: 0 0 25px #00ffe1;
+      background-color: rgba(0, 255, 225, 0.1);
+      transform: scale(1.05);
+    }
+
+    .folder-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+      text-shadow: 0 0 10px #00ffe1;
+    }
+
+    .folder-label {
+      font-size: 16px;
+      text-shadow: 0 0 5px #00ffe1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 130px;
+    }
+
+    /* زر حذف الصورة */
+    .delete-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background-color: transparent;
+      border: 1px solid #ff4444;
+      color: #ff4444;
+      font-weight: bold;
+      padding: 3px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      box-shadow: 0 0 8px #ff4444;
+      transition: 0.3s;
+      user-select: none;
+    }
+    .delete-btn:hover {
+      background-color: #ff4444;
+      color: #000;
+    }
+
+    /* نافذة منبثقة (Modal) */
+    .modal {
+      position: fixed;
+      display: none;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0,0,0,0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .modal-content {
+      position: relative;
+      max-width: 90vw;
+      max-height: 90vh;
+      box-shadow: 0 0 30px #00ffe1;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .modal-content img {
+      max-width: 100%;
+      max-height: 100%;
+      display: block;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      color: #00ffe1;
+      font-size: 28px;
+      cursor: pointer;
+      text-shadow: 0 0 10px #00ffe1;
+      user-select: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="background-animation"></div>
+
+  <div class="folder">
+    <h1>📁 مجلد الصور مع حماية بالباسورد</h1>
+
+    <div class="upload-section">
+      <input type="file" id="imageInput" accept="image/*" />
+      <input type="password" id="passwordInput" placeholder="ادخل الرقم السري للصورة" />
+    </div>
+
+    <div class="folder-content" id="folderContent">
+      <!-- الصور هتتعرض هنا -->
+    </div>
+  </div>
+
+  <!-- النافذة المنبثقة -->
+  <div class="modal" id="imageModal">
+    <div class="modal-content">
+      <span class="modal-close" id="modalClose">&times;</span>
+      <img src="" alt="صورة" id="modalImage" />
+    </div>
+  </div>
+
+  <script>
+    const folderContent = document.getElementById('folderContent');
+    const modal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    const modalClose = document.getElementById('modalClose');
+    const imageInput = document.getElementById('imageInput');
+    const passwordInput = document.getElementById('passwordInput');
+
+    // الصور مع الباسورد محفوظة في هذا الشكل:
+    // { name: "اسم الصورة", src: "رابط/Base64", password: "كلمة السر" }
+    let images = JSON.parse(localStorage.getItem('myImages')) || [
+      { name: 'صورة 1', src: 'https://via.placeholder.com/400x300?text=صورة+1', password: '1234' },
+      { name: 'صورة 2', src: 'https://via.placeholder.com/400x300?text=صورة+2', password: 'abcd' }
+    ];
+
+    function displayImages() {
+      folderContent.innerHTML = '';
+      images.forEach((img, index) => {
+        const item = document.createElement('div');
+        item.classList.add('folder-item');
+        item.innerHTML = `
+          <div class="folder-icon">🖼️</div>
+          <div class="folder-label" title="${img.name}">${img.name}</div>
+          <button class="delete-btn" title="حذف الصورة">حذف</button>
+        `;
+
+        // فتح الصورة بالباسورد لما تضغط على المنطقة غير زر الحذف
+        item.querySelector('.folder-icon, .folder-label').onclick = () => promptPasswordAndOpen(index);
+
+        // حذف الصورة لما تضغط على زر الحذف
+        item.querySelector('.delete-btn').onclick = (e) => {
+          e.stopPropagation(); // تمنع الضغط من الوصول لفنكشن فتح الصورة
+          if (confirm(`هل أنت متأكد أنك تريد حذف الصورة "${img.name}"؟`)) {
+            images.splice(index, 1);
+            localStorage.setItem('myImages', JSON.stringify(images));
+            displayImages();
+          }
+        };
+
+        folderContent.appendChild(item);
+      });
+    }
+
+    function promptPasswordAndOpen(index) {
+      const userPass = prompt('الرجاء إدخال الرقم السري لفتح الصورة "' + images[index].name + '"');
+      if (userPass === null) return; // لو ضغط إلغاء
+
+      if (userPass === images[index].password) {
+        openImage(index);
+      } else {
+        alert('الرقم السري غير صحيح!');
+      }
+    }
+
+    function openImage(index) {
+      modal.style.display = 'flex';
+      modalImage.src = images[index].src;
+      modalImage.alt = images[index].name;
+    }
+
+    modalClose.onclick = () => {
+      modal.style.display = 'none';
+      modalImage.src = '';
+    };
+
+    window.onclick = (e) => {
+      if (e.target === modal) {
+        modal.style.display = 'none';
+        modalImage.src = '';
+      }
+    };
+
+    // رفع صورة جديدة مع كلمة سر
+    imageInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const password = passwordInput.value.trim();
+      if (!password) {
+        alert('يرجى إدخال الرقم السري للصورة قبل الرفع!');
+        imageInput.value = '';
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        images.push({
+          name: file.name,
+          src: evt.target.result,
+          password: password
+        });
+        localStorage.setItem('myImages', JSON.stringify(images));
+        displayImages();
+        imageInput.value = '';
+        passwordInput.value = '';
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // عرض الصور عند تحميل الصفحة
+    displayImages();
+  </script>
+</body>
+</html>

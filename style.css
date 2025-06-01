@@ -1,0 +1,75 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Courier New', monospace;
+  background-color: #000;
+  color: #00ffcc;
+  overflow: hidden;
+}
+
+.lock-screen, .desktop {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  margin-top: 20vh;
+}
+
+h2, h1 {
+  text-shadow: 0 0 10px #00ffe1;
+}
+
+input[type="password"] {
+  padding: 12px;
+  width: 250px;
+  background-color: #111;
+  border: 1px solid #00ffe1;
+  color: #00ffe1;
+  font-size: 18px;
+  outline: none;
+  box-shadow: 0 0 10px #00ffe1;
+  text-align: center;
+}
+
+button {
+  padding: 12px 25px;
+  margin-top: 15px;
+  background-color: transparent;
+  border: 1px solid #00ffe1;
+  color: #00ffe1;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0 0 10px #00ffe1;
+}
+
+button:hover {
+  background-color: #00ffe1;
+  color: #000;
+}
+
+#errorMessage {
+  color: red;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.background-animation {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: repeating-linear-gradient(
+    0deg,
+    #0f0 0px,
+    #000 1px,
+    #000 2px
+  );
+  opacity: 0.05;
+  animation: scroll 5s linear infinite;
+  z-index: 1;
+}
+
+@keyframes scroll {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 100%; }
+}
